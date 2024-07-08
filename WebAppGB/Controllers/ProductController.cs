@@ -23,6 +23,7 @@ namespace WebAppGB.Controllers
                 return Ok(product.ID);
             }
         }
+
         [HttpGet]
         public ActionResult GetAllProducts()
         {
@@ -30,6 +31,22 @@ namespace WebAppGB.Controllers
             { 
                 var products = context.Products.Select(p => new Product { ProductName = p.ProductName, Description = p.Description, Price = p.Price}).ToList();
                 return Ok(products);
+            }
+        }
+
+        [HttpDelete]
+        public ActionResult DeleteProduct(int id) 
+        {
+            using (Context context = new Context())
+            {
+                Product product = context.Products.Find(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                context.Products.Remove(product);
+                context.SaveChanges();
+                return Ok($"Товар {product.ProductName} удален");
             }
         }
     }
