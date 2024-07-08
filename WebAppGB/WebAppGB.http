@@ -1,0 +1,6 @@
+@WebAppGB_HostAddress = http://localhost:5115
+
+GET {{WebAppGB_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
