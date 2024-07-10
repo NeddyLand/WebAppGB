@@ -25,7 +25,7 @@ namespace WebAppGB.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAllProducts()
+        public ActionResult GetProducts()
         {
             using(Context context = new Context()) 
             { 
