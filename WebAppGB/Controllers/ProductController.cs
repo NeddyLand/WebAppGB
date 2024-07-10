@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebAppGB.Abstractions;
 using WebAppGB.Data;
+using WebAppGB.Dto;
 using WebAppGB.Models;
 
 namespace WebAppGB.Controllers
@@ -8,30 +10,30 @@ namespace WebAppGB.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
+        private readonly IProductRepository _productRepository;
+        public ProductController(IProductRepository productRepository) 
+        { 
+            _productRepository = productRepository;
+        }
         [HttpPost]
-        public ActionResult<int> AddProduct(string name, string description, decimal price) 
+        public ActionResult<int> AddProduct(ProductDto productDto) 
         {
-            using(Context context = new Context())
+            try
             {
-                if (context.Products.Any(p => p.ProductName == name)) 
-                {
-                    return StatusCode(409);
-                }
-                var product = new Product { ProductName = name, Description = description, Price = price };
-                context.Products.Add(product);
-                context.SaveChanges();
-                return Ok(product.ID);
+                int id = _productRepository.AddProduct(productDto);
+                return Ok(id);
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode(409);
             }
         }
 
         [HttpGet]
         public ActionResult GetProducts()
         {
-            using(Context context = new Context()) 
-            { 
-                var products = context.Products.Select(p => new Product { ProductName = p.ProductName, Description = p.Description, Price = p.Price}).ToList();
-                return Ok(products);
-            }
+            var list = _productRepository.GetProducts();
+            return Ok(list);
         }
 
         [HttpDelete]

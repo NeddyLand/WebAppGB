@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebAppGB.Abstractions;
 using WebAppGB.Data;
+using WebAppGB.Dto;
 using WebAppGB.Models;
+using WebAppGB.Repository;
 
 namespace WebAppGB.Controllers
 {
@@ -8,29 +11,29 @@ namespace WebAppGB.Controllers
     [Route("[controller]")]
     public class ProductGroupController : ControllerBase
     {
-        [HttpPost]
-        public ActionResult<int> AddProductGroup(string name, string description)
+        private readonly IProductGroupRepository _productGroupRepository;
+        public ProductGroupController(IProductGroupRepository productGroupRepository)
         {
-            using (Context context = new Context())
+            _productGroupRepository = productGroupRepository;
+        }
+        [HttpPost]
+        public ActionResult<int> AddProductGrpoup(ProductGroupDto productGroupDto)
+        {
+            try
             {
-                if (context.ProductGroups.Any(p => p.Name == name))
-                {
-                    return StatusCode(409);
-                }
-                var productGroup = new ProductGroup { Name = name, Description = description };
-                context.ProductGroups.Add(productGroup);
-                context.SaveChanges();
-                return Ok(productGroup.ID);
+                int id = _productGroupRepository.AddProductGroup(productGroupDto);
+                return Ok(id);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(409);
             }
         }
         [HttpGet]
         public ActionResult GetProductGroups()
         {
-            using (Context context = new Context())
-            {
-                var productGroup = context.ProductGroups.Select(p => new ProductGroup { Name = p.Name, Description = p.Description}).ToList();
-                return Ok(productGroup);
-            }
+            var list = _productGroupRepository.GetProductGroups;
+            return Ok(list);
         }
         [HttpDelete]
         public ActionResult DeleteProductGroups(int id)

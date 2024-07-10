@@ -8,7 +8,14 @@ namespace WebAppGB.Data
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ProductGroup> ProductGroups { get; set; }
         public virtual DbSet<Storage> Storages { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer("Data Source = .\\SQLEXPRESS; Initial catalog = Store; Trusted_Connection = True; TrustServerCertificate = True").UseLazyLoadingProxies().LogTo(Console.WriteLine);
+        private readonly string _dbConnectionString;
+
+        public Context() { }
+        public Context(string connection) 
+        {
+            _dbConnectionString = connection;
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer(_dbConnectionString).UseLazyLoadingProxies().LogTo(Console.WriteLine);
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ProductGroup>(entity =>

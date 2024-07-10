@@ -1,4 +1,11 @@
 
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using WebAppGB.Abstractions;
+using WebAppGB.Data;
+using WebAppGB.Mapper;
+using WebAppGB.Repository;
+
 namespace WebAppGB
 {
     public class Program
@@ -13,6 +20,15 @@ namespace WebAppGB
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddAutoMapper(typeof(MapperProfile));
+
+            builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+            builder.Host.ConfigureContainer<ContainerBuilder>(cb =>
+            {
+                cb.RegisterType<ProductRepository>().As<IProductRepository>();
+                cb.RegisterType<ProductGroupRepository>().As<IProductGroupRepository>();
+                cb.Register(x => new Context(builder.Configuration.GetConnectionString("db"))).InstancePerDependency();
+            });
 
             var app = builder.Build();
 
