@@ -21,7 +21,7 @@ namespace WebAppGB
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddAutoMapper(typeof(MapperProfile));
-
+            builder.Services.AddMemoryCache(x => x.TrackStatistics = true);
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
             builder.Host.ConfigureContainer<ContainerBuilder>(cb =>
             {
