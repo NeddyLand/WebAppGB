@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using WebAppGB.Abstractions;
@@ -52,9 +53,43 @@ namespace WebAppGB.Repository
         [HttpGet(template:"GetProductsCSV")]
         public FileContentResult GetProductsCSV()
         {
-            var products = _context.Products.Select(_mapper.Map<ProductDto>).ToList();
-            var content = GetCSV(products);
+            var content = "";
+
+            if(_memoryCache.TryGetValue("products", out List<ProductDto> products))
+            {
+                content = GetCSV(products);
+            }
+            else
+            {
+                products = _context.Products.Select(_mapper.Map<ProductDto>).ToList();
+                _memoryCache.Set("products", products, TimeSpan.FromMinutes(30));
+                content = GetCSV(products);
+            }
             return File(new System.Text.UTF8Encoding().GetBytes(content), "test/csv", "report.csv");
+        }
+
+        [HttpGet(template: "GetProductsCSVUrl")]
+        public ActionResult<string> GetProductsCSVUrl()
+        {
+            var content = "";
+            if (_memoryCache.TryGetValue("products", out List<ProductDto> products))
+            {
+                content = GetCSV(products);
+            }
+            else
+            {
+                products = _context.Products.Select(_mapper.Map<ProductDto>).ToList();
+                _memoryCache.Set("products", products, TimeSpan.FromMinutes(30));
+                content = GetCSV(products);
+            }
+
+            string fileName = null;
+
+            fileName = "products" + DateTime.Now.ToBinary().ToString() + ".csv";
+
+            System.IO.File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles", fileName), content);
+
+            return "https://" + Request.Host.ToString() + "/static/" + fileName;
         }
     }
 }
