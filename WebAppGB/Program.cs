@@ -1,6 +1,8 @@
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 using WebAppGB.Abstractions;
 using WebAppGB.Data;
 using WebAppGB.Mapper;
@@ -38,6 +40,16 @@ namespace WebAppGB
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            var staticFilesPath = Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles");
+            Directory.CreateDirectory(staticFilesPath);
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    staticFilesPath),
+                RequestPath = "/static"
+            });
 
             app.UseHttpsRedirection();
 
